@@ -1,14 +1,14 @@
 package com.varun.workforce_management.auth_module.entity;
 
+import com.varun.workforce_management.auth_module.dto.RegistrationRequest;
 import jakarta.persistence.*;
+import java.io.Serializable;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.io.Serializable;
-import java.time.Instant;
 
 @Data
 @AllArgsConstructor
@@ -16,12 +16,13 @@ import java.time.Instant;
 @Entity
 @Table(name = "users")
 public class User implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(nullable = false,unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
@@ -31,7 +32,7 @@ public class User implements Serializable {
     private Boolean isActive;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id", nullable = false)
+    @JoinColumn(name = "role_id")
     private Role role;
 
     @Column(name = "created_at")
@@ -41,4 +42,5 @@ public class User implements Serializable {
     @Column(name = "updated_at")
     @UpdateTimestamp
     private Instant updatedAt;
+
 }
