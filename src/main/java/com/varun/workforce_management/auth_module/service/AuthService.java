@@ -1,7 +1,12 @@
 package com.varun.workforce_management.auth_module.service;
 
-import org.springframework.stereotype.Service;
+import com.varun.workforce_management.auth_module.dto.RegistrationRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 
-@Service
-public class AuthService {
+import java.util.Map;
+
+
+public interface AuthService {
+    public ResponseEntity<Map<String, String>> registerUser(RegistrationRequest registerResponse) ;
 }
