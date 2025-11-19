@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import org.springframework.http.ProblemDetail;
+import org.springframework.security.authentication.BadCredentialsException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
@@ -33,16 +34,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             errors.add(new ValidationErrorResponse(
                     err.getField(),
                     err.getDefaultMessage(),
-                    err.getCode()
-            ));
+                    err.getCode()));
         }
         return ResponseEntity.badRequest().body(errors);
     }
 
     @ExceptionHandler(UserExistsException.class)
-    public ResponseEntity<Map<String,String>> handleUserExistsException(UserExistsException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(Map.of("message", ex.getMessage()));
+    public ProblemDetail handleUserExistsException(UserExistsException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problemDetail.setTitle("User already exists");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ProblemDetail handleBadCredentialsException(BadCredentialsException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());
+        problemDetail.setTitle("Authentication Failed");
+        return problemDetail;
     }
 }

@@ -3,14 +3,11 @@ package com.varun.workforce_management.auth_module.service;
 import com.varun.workforce_management.auth_module.dto.LoginRequest;
 import com.varun.workforce_management.auth_module.dto.RegistrationRequest;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-
-import java.util.Map;
-
+import com.varun.workforce_management.auth_module.dto.LoginResponse;
+import com.varun.workforce_management.auth_module.dto.RegisterResponse;
 
 public interface AuthService {
-    public ResponseEntity<Map<String, String>> registerUser(RegistrationRequest registerResponse) ;
+    RegisterResponse registerUser(RegistrationRequest registerResponse);
 
-    ResponseEntity<Map<String, String>> loginUser(@Valid LoginRequest loginRequest);
+    LoginResponse loginUser(@Valid LoginRequest loginRequest);
 }

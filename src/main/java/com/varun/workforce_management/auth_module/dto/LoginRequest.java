@@ -10,6 +10,7 @@ import lombok.Data;
 public class LoginRequest {
 
     @Email(message = "Invalid email format")
+    @NotBlank(message = "Email cannot be blank")
     private String email;
 
     @Size(min = 8, max = 20, message = "Password must be between 7 and 20 characters")

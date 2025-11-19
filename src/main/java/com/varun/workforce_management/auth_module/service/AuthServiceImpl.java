@@ -8,15 +8,13 @@ import com.varun.workforce_management.auth_module.repository.RoleRepository;
 import com.varun.workforce_management.auth_module.repository.UserRepository;
 import com.varun.workforce_management.exception.UserExistsException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.varun.workforce_management.auth_module.dto.LoginResponse;
+import com.varun.workforce_management.auth_module.dto.RegisterResponse;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,13 +26,12 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authManager;
     private final JWTService jwtService;
 
-
     @Override
-    public ResponseEntity<Map<String, String>> registerUser(RegistrationRequest registrationRequest) {
+    public RegisterResponse registerUser(RegistrationRequest registrationRequest) {
 
-        if(userRepository.existsByEmail(registrationRequest.getEmail()))
+        if (userRepository.existsByEmail(registrationRequest.getEmail()))
             throw new UserExistsException("User already exists");
-        if(!roleRepository.existsByRoleName(registrationRequest.getRole().toUpperCase()))
+        if (!roleRepository.existsByRoleName(registrationRequest.getRole().toUpperCase()))
             throw new UserExistsException("Role does not exist");
         registrationRequest.setPassword(passwordService.encodePassword(registrationRequest.getPassword()));
 
@@ -49,29 +46,21 @@ public class AuthServiceImpl implements AuthService {
 
         userRepository.save(user);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(Map.of("message", "User registered successfully"));
+        return new RegisterResponse("User registered successfully");
     }
 
     @Override
-    public ResponseEntity<Map<String, String>> loginUser(LoginRequest loginRequest) {
+    public LoginResponse loginUser(LoginRequest loginRequest) {
 
-        Authentication authentication =
-                authManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+        Authentication authentication = authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
-        if(authentication.isAuthenticated()) {
+        if (authentication.isAuthenticated()) {
             String token = jwtService.generateToken(loginRequest.getEmail());
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(Map.of("token", token));
-        }
-        else {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", "Authentication failed"));
+            return new LoginResponse(token);
+        } else {
+            throw new BadCredentialsException("Authentication failed");
         }
     }
-
 
 }
