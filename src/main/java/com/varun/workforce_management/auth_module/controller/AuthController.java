@@ -1,5 +1,6 @@
 package com.varun.workforce_management.auth_module.controller;
 
+import com.varun.workforce_management.auth_module.dto.LoginRequest;
 import com.varun.workforce_management.auth_module.dto.RegistrationRequest;
 import com.varun.workforce_management.auth_module.service.AuthService;
 import jakarta.validation.Valid;
@@ -8,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.method.P;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,4 +28,8 @@ public class AuthController {
         return authService.registerUser(registrationRequest);
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<Map<String,String>> loginUser(@Valid @RequestBody LoginRequest loginRequest){
+        return authService.loginUser(loginRequest);
+    }
 }
