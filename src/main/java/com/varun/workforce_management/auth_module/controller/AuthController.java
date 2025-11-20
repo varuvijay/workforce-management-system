@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 
 import com.varun.workforce_management.auth_module.dto.LoginResponse;
 import com.varun.workforce_management.auth_module.dto.RegisterResponse;
+import com.varun.workforce_management.auth_module.dto.RefreshTokenRequest;
+import com.varun.workforce_management.auth_module.dto.TokenRefreshResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +30,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
         return ResponseEntity.ok(authService.loginUser(loginRequest));
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<TokenRefreshResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(authService.refreshToken(request));
     }
 
     @GetMapping("/test")

@@ -4,6 +4,9 @@ import com.varun.workforce_management.auth_module.dto.LoginRequest;
 import com.varun.workforce_management.auth_module.dto.RegistrationRequest;
 import com.varun.workforce_management.auth_module.entity.Role;
 import com.varun.workforce_management.auth_module.entity.User;
+import com.varun.workforce_management.auth_module.dto.RefreshTokenRequest;
+import com.varun.workforce_management.auth_module.dto.TokenRefreshResponse;
+import com.varun.workforce_management.auth_module.entity.RefreshToken;
 import com.varun.workforce_management.auth_module.repository.RoleRepository;
 import com.varun.workforce_management.auth_module.repository.UserRepository;
 import com.varun.workforce_management.exception.UserExistsException;
@@ -25,6 +28,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordService passwordService;
     private final AuthenticationManager authManager;
     private final JWTService jwtService;
+    private final RefreshTokenService refreshTokenService;
 
     @Override
     public RegisterResponse registerUser(RegistrationRequest registrationRequest) {
@@ -56,11 +60,25 @@ public class AuthServiceImpl implements AuthService {
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
         if (authentication.isAuthenticated()) {
-            String token = jwtService.generateToken(loginRequest.getEmail());
-            return new LoginResponse(token);
+            String role = authentication.getAuthorities().stream().findFirst().get().getAuthority();
+            String token = jwtService.generateToken(loginRequest.getEmail(), role);
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(loginRequest.getEmail());
+            return new LoginResponse(token, refreshToken.getRefreshToken());
         } else {
             throw new BadCredentialsException("Authentication failed");
         }
     }
 
+    @Override
+    public TokenRefreshResponse refreshToken(RefreshTokenRequest request) {
+        return refreshTokenService.findByToken(request.getRefreshToken())
+                .map(refreshTokenService::verifyExpiration)
+                .map(refreshToken -> {
+                    RefreshToken newRefreshToken = refreshTokenService.rotateRefreshToken(refreshToken);
+                    String role = newRefreshToken.getUser().getRole().getRoleName();
+                    String accessToken = jwtService.generateToken(newRefreshToken.getUser().getEmail(), role);
+                    return new TokenRefreshResponse(accessToken, newRefreshToken.getRefreshToken());
+                })
+                .orElseThrow(() -> new RuntimeException("Refresh token is not in database!"));
+    }
 }

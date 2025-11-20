@@ -35,3 +35,4 @@ build/
 .env
 login.md
 refreshtoken.md
+application.properties
