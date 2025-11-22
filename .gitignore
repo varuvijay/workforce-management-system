@@ -33,6 +33,6 @@ build/
 .vscode/
 
 .env
-login.md
-refreshtoken.md
-application.properties
+
+
+/details

@@ -1,14 +1,10 @@
 package com.varun.workforce_management.auth_module.controller;
 
-import com.varun.workforce_management.auth_module.dto.LoginRequest;
-import com.varun.workforce_management.auth_module.dto.RegistrationRequest;
+import com.varun.workforce_management.auth_module.dto.*;
 import com.varun.workforce_management.auth_module.service.AuthService;
 import jakarta.validation.Valid;
 
-import com.varun.workforce_management.auth_module.dto.LoginResponse;
-import com.varun.workforce_management.auth_module.dto.RegisterResponse;
-import com.varun.workforce_management.auth_module.dto.RefreshTokenRequest;
-import com.varun.workforce_management.auth_module.dto.TokenRefreshResponse;
+import com.varun.workforce_management.auth_module.dto.RefreshTokenResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,12 +29,12 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<TokenRefreshResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<RefreshTokenResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
         return ResponseEntity.ok(authService.refreshToken(request));
     }
 
-    @GetMapping("/test")
-    public String loginUser() {
-        return "test ";
+    @PostMapping("/logout")
+    public ResponseEntity<LogoutResponse> logoutUser(@RequestBody RefreshTokenRequest refreshToken) {
+        return ResponseEntity.ok(authService.logoutUser(refreshToken));
     }
 }

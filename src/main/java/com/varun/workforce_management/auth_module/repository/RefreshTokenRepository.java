@@ -9,4 +9,8 @@ import java.util.Optional;
 @Repository
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long> {
     Optional<RefreshToken> findByRefreshToken(String token);
+
+    Optional<RefreshToken> findByUser(com.varun.workforce_management.auth_module.entity.User user);
+
+    void deleteByRefreshToken(String token);
 }
