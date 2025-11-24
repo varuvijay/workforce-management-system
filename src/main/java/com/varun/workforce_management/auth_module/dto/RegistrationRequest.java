@@ -8,9 +8,6 @@ import lombok.Data;
 
 @Data
 public class RegistrationRequest {
-    @NotBlank(message = "Username cannot be blank")
-    @Size(min = 3, max = 40, message = "Username must be between 3 and 40 characters")
-    private String username;
 
     @Email(message = "Invalid email format")
     @NotBlank(message = "Email cannot be blank")

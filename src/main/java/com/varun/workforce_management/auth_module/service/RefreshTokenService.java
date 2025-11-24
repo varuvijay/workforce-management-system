@@ -29,7 +29,7 @@ public class RefreshTokenService {
                         .build());
 
         refreshToken.setRefreshToken(UUID.randomUUID().toString());
-        refreshToken.setExpiresAt(Instant.now().plusSeconds(30)); // 30 seconds as per previous change
+        refreshToken.setExpiresAt(Instant.now().plusSeconds(2592000 )); // 30 seconds as per previous change
 
         return refreshTokenRepository.save(refreshToken);
     }
@@ -38,7 +38,7 @@ public class RefreshTokenService {
         if (token.getExpiresAt().compareTo(Instant.now()) < 0) {
             refreshTokenRepository.delete(token);
             throw new TokenRefreshException(token.getRefreshToken(),
-                    "Refresh token was expired. Please make a new signin request");
+                    "Refresh token was expired. Please signin ");
         }
         return token;
     }
