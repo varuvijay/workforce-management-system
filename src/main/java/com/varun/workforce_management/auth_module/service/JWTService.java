@@ -28,6 +28,20 @@ public class JWTService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    public String generateToken(String username, String role) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);
+        return Jwts.builder()
+                .claims()
+                .add(claims)
+                .subject(username)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                .and()
+                .signWith(getKey())
+                .compact();
+    }
+
     public String extractUserName(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -48,21 +62,6 @@ public class JWTService {
     public boolean validateToken(String token, UserDetails userDetails) {
         final String userName = extractUserName(token);
         return (userName.equals(userDetails.getUsername()) && !isTokenExpired(token));
-    }
-
-    public String generateToken(String username, String role) {
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("role", role);
-        return Jwts.builder()
-                .claims()
-                .add(claims)
-                .subject(username)
-                .issuedAt(new Date(System.currentTimeMillis()))
-                // Use the configured expiration time instead of the hardcoded value
-                .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .and()
-                .signWith(getKey())
-                .compact();
     }
 
     private boolean isTokenExpired(String token) {

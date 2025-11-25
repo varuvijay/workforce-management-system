@@ -33,7 +33,5 @@ build/
 .vscode/
 
 .env
-
-
 /details
 GEMINI.md

@@ -10,14 +10,15 @@ import java.util.List;
 public class UserPrincipal implements UserDetails {
 
     private User user;
+
     public UserPrincipal(User user) {
         this.user = user;
     }
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(() -> user.getRole().getRoleName());
+        // Spring Security's hasRole() expects "ROLE_" prefix
+        return List.of(() -> "ROLE_" + user.getRole().getRoleName());
     }
 
     @Override
@@ -32,7 +33,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return user.getIsActive(); // Assuming getIsActive() returns a boolean
+        return user.getIsActive();
     }
 
     @Override
@@ -49,7 +50,5 @@ public class UserPrincipal implements UserDetails {
     public boolean isCredentialsNonExpired() {
         return true;
     }
-
-
 
 }
