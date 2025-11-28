@@ -1,10 +1,8 @@
 package com.varun.workforce_management.employee_module.service;
 
-
 import com.varun.workforce_management.auth_module.entity.User;
-import com.varun.workforce_management.auth_module.repository.UserRepository;
 import com.varun.workforce_management.employee_module.dto.EmployeeRequest;
-import com.varun.workforce_management.employee_module.dto.Message;
+import com.varun.workforce_management.employee_module.dto.EmployeeResponseDTO;
 import com.varun.workforce_management.employee_module.entity.Employee;
 import com.varun.workforce_management.employee_module.repository.DesignationRepository;
 import com.varun.workforce_management.employee_module.repository.EmployeeRepository;
@@ -22,16 +20,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     private final EmployeeRepository employeeRepository;
     private final DesignationRepository designationRepository;
-    private final UserRepository userRepository;
-
-
 
     @Override
-    public Message addEmployee(EmployeeRequest employeeRequest) {
-        User user = userRepository.findByEmail(employeeRequest.userEmail())
-                .orElseThrow(() -> new UsernameNotFoundException("Invalid email"));
+    public EmployeeResponseDTO addEmployee(EmployeeRequest employeeRequest, User user) {
 
-        if (employeeRepository.findByPhoneNumber(employeeRequest.phoneNumber()))
+        if (!user.getEmail().equals(employeeRequest.userEmail()))
+            throw new UsernameNotFoundException("Invalid email: You can only create an employee profile for yourself.");
+
+        if (employeeRepository.existsByPhoneNumber(employeeRequest.phoneNumber()))
             throw new UserExistsException("Phone Number already exists try another number");
 
         Employee employee = new Employee();
@@ -39,10 +35,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setFirstName(employeeRequest.firstName());
         employee.setLastName(employeeRequest.lastName());
         employee.setPhoneNumber(employeeRequest.phoneNumber());
-        employee.setAddress(employeeRequest.address());   
+        employee.setAddress(employeeRequest.address());
         employee.setPermanentAddress(employeeRequest.permanentAddress());
         employee.setDesignation(designationRepository.findByDesignationName(employeeRequest.designationName()));
-        employee.setDateOfJoining(employeeRequest.dateOfJoining());        
+        employee.setDateOfJoining(employeeRequest.dateOfJoining());
         employee.setDateOfBirth(employeeRequest.dateOfBirth());
         employee.setGender(employeeRequest.gender());
         employee.setPanNumber(employeeRequest.panNumber());
@@ -54,13 +50,40 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setSalary(employeeRequest.salary());
         employee.setCreatedAt(Instant.now());
         employee.setUpdatedAt(Instant.now());
-        employeeRepository.save(employee);
 
-        return new Message("Employee added successfully");
+        Employee savedEmployee = employeeRepository.save(employee);
+
+        return mapToDTO(savedEmployee);
     }
 
     @Override
-    public List<Message> getAllEmployees() {
-        return List.of();
+    public List<EmployeeResponseDTO> getAllEmployees() {
+        return employeeRepository.findAll().stream()
+                .map(this::mapToDTO)
+                .toList();
+    }
+
+    private EmployeeResponseDTO mapToDTO(Employee employee) {
+        return new EmployeeResponseDTO(
+                employee.getEmployeeId(),
+                employee.getFirstName(),
+                employee.getLastName(),
+                employee.getUser().getEmail(),
+                employee.getPhoneNumber(),
+                employee.getDateOfBirth(),
+                employee.getAddress(),
+                employee.getPermanentAddress(),
+                employee.getDateOfJoining(),
+                employee.getDesignation() != null ? employee.getDesignation().getDesignationName() : null,
+                employee.getGender(),
+                employee.getPanNumber(),
+                employee.getAadharNumber(),
+                employee.getBankAccountNumber(),
+                employee.getBankName(),
+                employee.getIfscCode(),
+                employee.getBranch(),
+                employee.getSalary(),
+                employee.getCreatedAt(),
+                employee.getUpdatedAt());
     }
 }

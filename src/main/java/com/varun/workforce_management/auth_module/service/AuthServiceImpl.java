@@ -32,8 +32,10 @@ public class AuthServiceImpl implements AuthService {
 
         if (userRepository.existsByEmail(registrationRequest.getEmail()))
             throw new UserExistsException("User already exists");
+
         if (!roleRepository.existsByRoleName(registrationRequest.getRole().toUpperCase()))
             throw new UserExistsException("Role does not exist");
+
         registrationRequest.setPassword(passwordService.encodePassword(registrationRequest.getPassword()));
 
         Role role = roleRepository.findByRoleName(registrationRequest.getRole().toUpperCase())

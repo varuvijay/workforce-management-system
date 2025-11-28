@@ -9,6 +9,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
@@ -24,20 +26,19 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 import java.io.IOException;
 
 @Component
+@RequiredArgsConstructor
 public class JWTFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JWTService jwtService;
+    private final JWTService jwtService;
 
-    @Autowired
-    private ApplicationContext context;
+    private final ApplicationContext context;
 
     @Autowired
     @Qualifier("handlerExceptionResolver")
-    private HandlerExceptionResolver resolver;
+    private  HandlerExceptionResolver resolver;
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
         String token = null;

@@ -1,5 +1,6 @@
 package com.varun.workforce_management.auth_module.config;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,9 +22,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
+
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JWTFilter jwtFilter) throws Exception {
@@ -36,11 +42,11 @@ public class SecurityConfig {
                                 "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html")
                         .permitAll()
 
-                        // Role-based endpoint access 
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/manager/**").hasAnyRole("MANAGER", "ADMIN")
-                        .requestMatchers("/api/employee/**").hasAnyRole("EMPLOYEE", "MANAGER", "ADMIN")
-                        .requestMatchers("/api/hr/**").hasRole("HR")
+//                        Role-based endpoint access
+                       .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                       .requestMatchers("/api/manager/**").hasAnyRole("MANAGER", "ADMIN")
+                       .requestMatchers("/api/employee/**").hasAnyRole("EMPLOYEE", "MANAGER", "ADMIN")
+                       .requestMatchers("/api/hr/**").hasRole("HR")
 
                         .anyRequest().authenticated())
 
@@ -81,13 +87,5 @@ public class SecurityConfig {
 
     }
 
-    // @Bean
-    // public InMemoryUserDetailsManager userDetailsService() {
-    // UserDetails user = User
-    // .withUsername("varun")
-    // .password(passwordEncoder().encode("varun"))
-    // .roles("USER")
-    // .build();
-    // return new InMemoryUserDetailsManager(user);
-    // }
+    
 }

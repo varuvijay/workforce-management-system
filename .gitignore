@@ -35,3 +35,4 @@ build/
 .env
 /details
 GEMINI.md
+.agent

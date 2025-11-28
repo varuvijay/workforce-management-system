@@ -52,8 +52,9 @@ public class Employee {
     @JoinColumn(name = "designation_id")
     private Designation designation;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "gender", length = 10)
-    private String gender;
+    private Gender gender;
 
     @Column(name = "pan_number", length = 10, unique = true)
     private String panNumber;
@@ -73,8 +74,8 @@ public class Employee {
     @Column(name = "branch", length = 100)
     private String branch;
 
-    @Column(name = "salary", precision = 10, scale = 2)
-    private Double salary;
+    @Column(name = "salary")
+    private java.math.BigDecimal salary;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp

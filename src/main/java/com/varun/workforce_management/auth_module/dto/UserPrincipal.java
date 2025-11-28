@@ -15,6 +15,10 @@ public class UserPrincipal implements UserDetails {
         this.user = user;
     }
 
+    public User getUser() {
+        return user;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // Spring Security's hasRole() expects "ROLE_" prefix

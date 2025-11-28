@@ -39,7 +39,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                     err.getDefaultMessage(),
                     err.getCode()));
         }
-        return ResponseEntity.badRequest().body(errors);
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation Failed");
+        problemDetail.setTitle("Validation Error");
+        problemDetail.setProperty("errors", errors);
+
+        return ResponseEntity.badRequest().body(problemDetail);
     }
 
     @ExceptionHandler(UserExistsException.class)
@@ -71,7 +76,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ProblemDetail handleUserNameNotFoundException(UsernameNotFoundException ex){
+    public ProblemDetail handleUserNameNotFoundException(UsernameNotFoundException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
         problemDetail.setTitle("not found");
         return problemDetail;

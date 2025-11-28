@@ -1,15 +1,15 @@
 package com.varun.workforce_management.employee_module.service;
 
-
+import com.varun.workforce_management.auth_module.entity.User;
 import com.varun.workforce_management.employee_module.dto.EmployeeRequest;
-import com.varun.workforce_management.employee_module.dto.Message;
+import com.varun.workforce_management.employee_module.dto.EmployeeResponseDTO;
 import jakarta.validation.Valid;
 
 import java.util.List;
 
 public interface EmployeeService {
 
-    Message addEmployee(@Valid EmployeeRequest employeeRequest);
+    EmployeeResponseDTO addEmployee(@Valid EmployeeRequest employeeRequest, User user);
 
-    List<Message> getAllEmployees();
+    List<EmployeeResponseDTO> getAllEmployees();
 }
