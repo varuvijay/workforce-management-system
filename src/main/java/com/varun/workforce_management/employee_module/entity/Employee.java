@@ -1,6 +1,7 @@
 package com.varun.workforce_management.employee_module.entity;
 
 import com.varun.workforce_management.auth_module.entity.User;
+import com.varun.workforce_management.employee_module.dto.EmployeeCreateRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -84,4 +85,26 @@ public class Employee {
     @Column(name = "updated_at")
     @UpdateTimestamp
     private Instant updatedAt;
+
+    public static Employee create(User user, EmployeeCreateRequest request, Designation designation) {
+        Employee employee = new Employee();
+        employee.setUser(user);
+        employee.setFirstName(request.firstName());
+        employee.setLastName(request.lastName());
+        employee.setPhoneNumber(request.phoneNumber());
+        employee.setAddress(request.address());
+        employee.setPermanentAddress(request.permanentAddress());
+        employee.setDesignation(designation);
+        employee.setDateOfJoining(request.dateOfJoining());
+        employee.setDateOfBirth(request.dateOfBirth());
+        employee.setGender(request.gender());
+        employee.setPanNumber(request.panNumber());
+        employee.setAadharNumber(request.aadharNumber());
+        employee.setBankAccountNumber(request.bankAccountNumber());
+        employee.setBankName(request.bankName());
+        employee.setIfscCode(request.ifscCode());
+        employee.setBranch(request.branch());
+        employee.setSalary(request.salary());
+        return employee;
+    }
 }

@@ -6,13 +6,21 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 public class UserPrincipal implements UserDetails {
 
     private User user;
 
     public UserPrincipal(User user) {
-        this.user = user;
+        // Fail fast: Ensure the user and critical fields are present
+        this.user = Objects.requireNonNull(user, "User entity must not be null");
+
+
+        Objects.requireNonNull(user.getEmail(), "Email cannot be null");
+        Objects.requireNonNull(user.getPassword(), "Password cannot be null");
+        Objects.requireNonNull(user.getRole(), "User role must not be null");
+        Objects.requireNonNull(user.getRole().getRoleName(), "Role name cannot be null");
     }
 
     public User getUser() {

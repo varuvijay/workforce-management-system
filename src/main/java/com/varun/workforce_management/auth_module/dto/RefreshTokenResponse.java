@@ -1,4 +1,4 @@
 package com.varun.workforce_management.auth_module.dto;
 
-public record RefreshTokenResponse(String accessToken, String refreshToken) {
+public record RefreshTokenResponse(String accessToken) {
 }

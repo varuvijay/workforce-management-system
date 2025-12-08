@@ -23,6 +23,16 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+    /**
+     * Handles validation errors (e.g., @NotNull, @Size) triggered by @Valid
+     * annotations in Controllers.
+     * Overrides the default Spring Boot behavior to return a structured
+     * ProblemDetail response (RFC 7807).
+     * <p>
+     * Status: 400 Bad Request
+     * Body: Contains a "errors" property with a list of field-specific validation
+     * messages.
+     */
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
@@ -30,18 +40,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             HttpStatusCode status,
             WebRequest request) {
 
-        // use streams for less code
+        // Collect all validation errors from the exception
         List<ValidationErrorResponse> errors = new ArrayList<>();
 
         for (FieldError err : ex.getBindingResult().getFieldErrors()) {
             errors.add(new ValidationErrorResponse(
-                    err.getField(),
-                    err.getDefaultMessage(),
-                    err.getCode()));
+                    err.getField(), // The field that failed validation (e.g., "email")
+                    err.getDefaultMessage(), // The error message (e.g., "must not be null")
+                    err.getCode())); // The validation code (e.g., "NotNull")
         }
 
+        // Create a Value Object (ProblemDetail) mandated by Spring 6 / Boot 3 for
+        // standard error responses
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation Failed");
         problemDetail.setTitle("Validation Error");
+
+        // Add the custom list of errors as an extension property
         problemDetail.setProperty("errors", errors);
 
         return ResponseEntity.badRequest().body(problemDetail);
@@ -86,6 +100,38 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handleTokenRefreshException(TokenRefreshException ex) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
         problemDetail.setTitle("Token Refresh Failed");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    public ProblemDetail handleUnauthorizedAccessException(UnauthorizedAccessException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
+        problemDetail.setTitle("Access Denied");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ProblemDetail handleResourceNotFoundException(ResourceNotFoundException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        problemDetail.setTitle("Resource Not Found");
+        return problemDetail;
+    }
+
+    @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
+    public ProblemDetail handleConstraintViolationException(jakarta.validation.ConstraintViolationException ex) {
+        List<ValidationErrorResponse> errors = new ArrayList<>();
+
+        for (jakarta.validation.ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+            errors.add(new ValidationErrorResponse(
+                    violation.getPropertyPath().toString(),
+                    violation.getMessage(),
+                    "ConstraintViolation"));
+        }
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation Failed");
+        problemDetail.setTitle("Validation Error");
+        problemDetail.setProperty("errors", errors);
+
         return problemDetail;
     }
 }

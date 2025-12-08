@@ -10,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Entity
 @Data
@@ -42,6 +43,13 @@ public class Project {
     @ManyToOne
     @JoinColumn(name = "manager_id")
     private Employee manager;
+
+    @ManyToMany
+    @JoinTable(
+        name = "project_employee",
+        joinColumns = @JoinColumn(name = "project_id"),
+        inverseJoinColumns = @JoinColumn(name = "employee_id"))
+    private Set<Employee> employees;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
