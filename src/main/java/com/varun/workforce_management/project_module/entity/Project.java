@@ -45,10 +45,7 @@ public class Project {
     private Employee manager;
 
     @ManyToMany
-    @JoinTable(
-        name = "project_employee",
-        joinColumns = @JoinColumn(name = "project_id"),
-        inverseJoinColumns = @JoinColumn(name = "employee_id"))
+    @JoinTable(name = "project_employee", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "employee_id"))
     private Set<Employee> employees;
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -58,4 +55,14 @@ public class Project {
     @Column(name = "updated_at")
     @UpdateTimestamp
     private Instant updatedAt;
+
+    public static Project from(com.varun.workforce_management.project_module.dto.ProjectRequestDTO projectRequestDTO) {
+        Project project = new Project();
+        project.setProjectName(projectRequestDTO.projectName());
+        project.setDescription(projectRequestDTO.description());
+        project.setStartDate(projectRequestDTO.startDate());
+        project.setEndDate(projectRequestDTO.endDate());
+        project.setStatus(projectRequestDTO.status());
+        return project;
+    }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface EmployeeService {
 
-    EmployeeResponseDTO addEmployee(@Valid EmployeeCreateRequest employeeCreateRequest, User user) ;
+    EmployeeResponseDTO addEmployee(@Valid EmployeeCreateRequest employeeCreateRequest) ;
 
     List<EmployeeResponseDTO> getAllEmployees();
 

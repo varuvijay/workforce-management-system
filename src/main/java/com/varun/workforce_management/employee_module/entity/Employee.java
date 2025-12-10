@@ -34,6 +34,10 @@ public class Employee {
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "manager_id")
+    private Employee managerId;
+
     @Column(name = "phone_number")
     private String phoneNumber;
 

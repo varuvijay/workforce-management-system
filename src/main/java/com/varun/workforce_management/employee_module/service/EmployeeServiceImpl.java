@@ -10,15 +10,14 @@ import com.varun.workforce_management.employee_module.entity.Employee;
 import com.varun.workforce_management.employee_module.repository.DesignationRepository;
 import com.varun.workforce_management.employee_module.repository.EmployeeRepository;
 import com.varun.workforce_management.exception.ResourceNotFoundException;
-import com.varun.workforce_management.exception.UnauthorizedAccessException;
 import com.varun.workforce_management.exception.UserExistsException;
-
 import lombok.Data;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Data
@@ -32,30 +31,31 @@ public class EmployeeServiceImpl implements EmployeeService {
     @PreAuthorize("hasRole('HR')")
     public EmployeeResponseDTO addEmployee(EmployeeCreateRequest employeeCreateRequest) {
 
-            if (employeeRepository.existsByPhoneNumber(employeeCreateRequest.phoneNumber()))
-                throw new UserExistsException("Phone Number already exists try another number");
+        User user = userRepository.findByEmail(employeeCreateRequest.userEmail())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User not found for email: " + employeeCreateRequest.userEmail()));
 
-            Designation designation = designationRepository.findByDesignationName(employeeCreateRequest.designationName());
-            if (designation == null) {
-                throw new ResourceNotFoundException("Designation not found: " + employeeCreateRequest.designationName());
+        if (employeeRepository.existsByPhoneNumber(employeeCreateRequest.phoneNumber()))
+            throw new UserExistsException("Phone Number already exists try another number");
+
+        Designation designation = designationRepository.findByDesignationName(employeeCreateRequest.designationName());
+        if (designation == null) {
+            throw new ResourceNotFoundException("Designation not found: " + employeeCreateRequest.designationName());
+        }
+
+
+
+        Employee employee = Employee.create(user, employeeCreateRequest, designation);
+
+        try {
+            return EmployeeResponseDTO.from(employeeRepository.save(employee));
+        } catch (DataIntegrityViolationException ex) {
+            String msg = ex.getMostSpecificCause().getMessage();
+            if (msg.contains("Detail:")) {
+                msg = msg.substring(msg.indexOf("Detail:") + 8);
             }
-
-            User user = userRepository.findByEmail(employeeCreateRequest.email());
-            if (user == null) {
-                throw new ResourceNotFoundException("User not found for email: " + employeeCreateRequest.email());
-            }
-
-            Employee employee = Employee.create(user, employeeCreateRequest, designation);
-
-            try {
-                return EmployeeResponseDTO.from(employeeRepository.save(employee));
-            } catch (DataIntegrityViolationException ex) {
-                String msg = ex.getMostSpecificCause().getMessage();
-                if (msg.contains("Detail:")) {
-                    msg = msg.substring(msg.indexOf("Detail:") + 8);
-                }
-                throw new UserExistsException(msg);
-            }
+            throw new UserExistsException(msg);
+        }
 
     }
 
@@ -69,7 +69,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeResponseDTO getEmployeeByEmail(String email) {
         return userRepository.findByEmail(email)
-                .map(user -> employeeRepository.findByUser(user))
+                .map(employeeRepository::findByUser)
                 .map(EmployeeResponseDTO::from)
                 .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
     }
@@ -77,31 +77,35 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     @PreAuthorize("hasRole('HR')")
     public EmployeeResponseDTO updateEmployee(EmployeeCreateRequest employeeCreateRequest, String email) {
-        
-        Employee employee = employeeRepository.findByUser(userRepository.findByEmail(email));    
+
+        Employee employee = employeeRepository.findByUser(userRepository.findByEmail(email));
+
         if (employee == null) {
             throw new ResourceNotFoundException("Employee not found for email: " + email);
         }
 
         if (employeeRepository.existsByPhoneNumber(employeeCreateRequest.phoneNumber()))
-                throw new UserExistsException("Phone Number already exists try another number");
+            throw new UserExistsException("Phone Number already exists try another number");
 
-            Designation designation = designationRepository.findByDesignationName(employeeCreateRequest.designationName());
-            if (designation == null) {
-                throw new ResourceNotFoundException(STR."Designation not found: \{employeeCreateRequest.designationName()}");
+        Designation designation = designationRepository.findByDesignationName(employeeCreateRequest.designationName());
+        if (designation == null) {
+            throw new ResourceNotFoundException(STR."Designation not found: \{employeeCreateRequest.designationName()}");
+        }
+
+        User user = userRepository.findByEmail(employeeCreateRequest.userEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found for email: " + employeeCreateRequest.userEmail()));
+
+        Employee employe = Employee.create(user, employeeCreateRequest, designation);
+
+        try {
+            return EmployeeResponseDTO.from(employeeRepository.save(employe));
+        } catch (DataIntegrityViolationException ex) {
+            String msg = ex.getMostSpecificCause().getMessage();
+            if (msg.contains("Detail:")) {
+                msg = msg.substring(msg.indexOf("Detail:") + 8);
             }
-
-            Employee employee = Employee.create(user, employeeCreateRequest, designation);
-
-            try {
-                return EmployeeResponseDTO.from(employeeRepository.save(empl oyee));
-            } catch (DataIntegrityViolationException ex) {
-                String msg = ex.getMostSpecificCause().getMessage();
-                if (msg.contains("Detail:")) {
-                    msg = msg.substring(msg.indexOf("Detail:") + 8);
-                }
-                throw new UserExistsException(msg);
-            }
+            throw new UserExistsException(msg);
+        }
 
     }
 
