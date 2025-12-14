@@ -13,11 +13,12 @@ import com.varun.workforce_management.exception.ResourceNotFoundException;
 import com.varun.workforce_management.exception.UserExistsException;
 import lombok.Data;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Data
@@ -43,8 +44,6 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new ResourceNotFoundException("Designation not found: " + employeeCreateRequest.designationName());
         }
 
-
-
         Employee employee = Employee.create(user, employeeCreateRequest, designation);
 
         try {
@@ -60,8 +59,10 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public List<EmployeeResponseDTO> getAllEmployees() {
-        return employeeRepository.findAll().stream()
+    public List<EmployeeResponseDTO> getAllEmployees(int page, int size) {
+      Pageable pageable = PageRequest.of(page, size);
+
+        return employeeRepository.findAll(pageable).stream()
                 .map(EmployeeResponseDTO::from)
                 .toList();
     }

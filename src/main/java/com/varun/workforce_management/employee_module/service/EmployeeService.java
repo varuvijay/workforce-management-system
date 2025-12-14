@@ -1,6 +1,5 @@
 package com.varun.workforce_management.employee_module.service;
 
-import com.varun.workforce_management.auth_module.entity.User;
 import com.varun.workforce_management.employee_module.dto.EmployeeCreateRequest;
 import com.varun.workforce_management.employee_module.dto.EmployeeResponseDTO;
 import com.varun.workforce_management.employee_module.dto.Message;
@@ -13,11 +12,12 @@ public interface EmployeeService {
 
     EmployeeResponseDTO addEmployee(@Valid EmployeeCreateRequest employeeCreateRequest) ;
 
-    List<EmployeeResponseDTO> getAllEmployees();
+    List<EmployeeResponseDTO> getAllEmployees(int page, int size);
 
     EmployeeResponseDTO getEmployeeByEmail(@Email String email);
 
     EmployeeResponseDTO updateEmployee(@Valid EmployeeCreateRequest employeeCreateRequest, @Email String email);
 
     Message deleteEmployee(@Email String email);
+
 }

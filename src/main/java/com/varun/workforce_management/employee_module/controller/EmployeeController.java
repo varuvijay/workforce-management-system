@@ -32,8 +32,9 @@ public class EmployeeController {
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<EmployeeResponseDTO>> getAllEmployees() {
-        return ResponseEntity.ok(employeeService.getAllEmployees());
+    public ResponseEntity<List<EmployeeResponseDTO>> getAllEmployees(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(employeeService.getAllEmployees(page, size));
     }
 
     @GetMapping("/{email}")
