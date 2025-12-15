@@ -9,6 +9,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
+@Data
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTService jwtService;

@@ -2,9 +2,11 @@ package com.varun.workforce_management.project_module.dto;
 
 import com.varun.workforce_management.project_module.entity.Project;
 import com.varun.workforce_management.project_module.entity.ProjectStatus;
+import lombok.Data;
 
 import java.time.Instant;
 import java.time.LocalDate;
+
 
 public record ProjectResponseDTO(
                 Long projectId,
