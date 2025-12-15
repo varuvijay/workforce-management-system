@@ -1,6 +1,7 @@
 package com.varun.workforce_management.employee_module.entity;
 
 import com.varun.workforce_management.auth_module.entity.User;
+import com.varun.workforce_management.employee_module.dto.EmployeeCreateRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,6 +34,10 @@ public class Employee {
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "manager_id")
+    private Employee managerId;
+
     @Column(name = "phone_number")
     private String phoneNumber;
 
@@ -52,8 +57,9 @@ public class Employee {
     @JoinColumn(name = "designation_id")
     private Designation designation;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "gender", length = 10)
-    private String gender;
+    private Gender gender;
 
     @Column(name = "pan_number", length = 10, unique = true)
     private String panNumber;
@@ -73,8 +79,8 @@ public class Employee {
     @Column(name = "branch", length = 100)
     private String branch;
 
-    @Column(name = "salary", precision = 10, scale = 2)
-    private Double salary;
+    @Column(name = "salary")
+    private java.math.BigDecimal salary;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @CreationTimestamp
@@ -83,4 +89,26 @@ public class Employee {
     @Column(name = "updated_at")
     @UpdateTimestamp
     private Instant updatedAt;
+
+    public static Employee create(User user, EmployeeCreateRequest request, Designation designation) {
+        Employee employee = new Employee();
+        employee.setUser(user);
+        employee.setFirstName(request.firstName());
+        employee.setLastName(request.lastName());
+        employee.setPhoneNumber(request.phoneNumber());
+        employee.setAddress(request.address());
+        employee.setPermanentAddress(request.permanentAddress());
+        employee.setDesignation(designation);
+        employee.setDateOfJoining(request.dateOfJoining());
+        employee.setDateOfBirth(request.dateOfBirth());
+        employee.setGender(request.gender());
+        employee.setPanNumber(request.panNumber());
+        employee.setAadharNumber(request.aadharNumber());
+        employee.setBankAccountNumber(request.bankAccountNumber());
+        employee.setBankName(request.bankName());
+        employee.setIfscCode(request.ifscCode());
+        employee.setBranch(request.branch());
+        employee.setSalary(request.salary());
+        return employee;
+    }
 }

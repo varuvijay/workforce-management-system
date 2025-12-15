@@ -1,19 +1,23 @@
 package com.varun.workforce_management.employee_module.service;
 
-
 import com.varun.workforce_management.auth_module.entity.User;
 import com.varun.workforce_management.auth_module.repository.UserRepository;
-import com.varun.workforce_management.employee_module.dto.EmployeeRequest;
+import com.varun.workforce_management.employee_module.dto.EmployeeCreateRequest;
+import com.varun.workforce_management.employee_module.dto.EmployeeResponseDTO;
 import com.varun.workforce_management.employee_module.dto.Message;
+import com.varun.workforce_management.employee_module.entity.Designation;
 import com.varun.workforce_management.employee_module.entity.Employee;
 import com.varun.workforce_management.employee_module.repository.DesignationRepository;
 import com.varun.workforce_management.employee_module.repository.EmployeeRepository;
+import com.varun.workforce_management.exception.ResourceNotFoundException;
 import com.varun.workforce_management.exception.UserExistsException;
 import lombok.Data;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -24,43 +28,100 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final DesignationRepository designationRepository;
     private final UserRepository userRepository;
 
-
-
     @Override
-    public Message addEmployee(EmployeeRequest employeeRequest) {
-        User user = userRepository.findByEmail(employeeRequest.userEmail())
-                .orElseThrow(() -> new UsernameNotFoundException("Invalid email"));
+    @PreAuthorize("hasRole('HR')")
+    public EmployeeResponseDTO addEmployee(EmployeeCreateRequest employeeCreateRequest) {
 
-        if (employeeRepository.findByPhoneNumber(employeeRequest.phoneNumber()))
+        User user = userRepository.findByEmail(employeeCreateRequest.userEmail())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User not found for email: " + employeeCreateRequest.userEmail()));
+
+        if (employeeRepository.existsByPhoneNumber(employeeCreateRequest.phoneNumber()))
             throw new UserExistsException("Phone Number already exists try another number");
 
-        Employee employee = new Employee();
-        employee.setUser(user);
-        employee.setFirstName(employeeRequest.firstName());
-        employee.setLastName(employeeRequest.lastName());
-        employee.setPhoneNumber(employeeRequest.phoneNumber());
-        employee.setAddress(employeeRequest.address());   
-        employee.setPermanentAddress(employeeRequest.permanentAddress());
-        employee.setDesignation(designationRepository.findByDesignationName(employeeRequest.designationName()));
-        employee.setDateOfJoining(employeeRequest.dateOfJoining());        
-        employee.setDateOfBirth(employeeRequest.dateOfBirth());
-        employee.setGender(employeeRequest.gender());
-        employee.setPanNumber(employeeRequest.panNumber());
-        employee.setAadharNumber(employeeRequest.aadharNumber());
-        employee.setBankAccountNumber(employeeRequest.bankAccountNumber());
-        employee.setBankName(employeeRequest.bankName());
-        employee.setIfscCode(employeeRequest.ifscCode());
-        employee.setBranch(employeeRequest.branch());
-        employee.setSalary(employeeRequest.salary());
-        employee.setCreatedAt(Instant.now());
-        employee.setUpdatedAt(Instant.now());
-        employeeRepository.save(employee);
+        Designation designation = designationRepository.findByDesignationName(employeeCreateRequest.designationName());
+        if (designation == null) {
+            throw new ResourceNotFoundException("Designation not found: " + employeeCreateRequest.designationName());
+        }
 
-        return new Message("Employee added successfully");
+        Employee employee = Employee.create(user, employeeCreateRequest, designation);
+
+        try {
+            return EmployeeResponseDTO.from(employeeRepository.save(employee));
+        } catch (DataIntegrityViolationException ex) {
+            String msg = ex.getMostSpecificCause().getMessage();
+            if (msg.contains("Detail:")) {
+                msg = msg.substring(msg.indexOf("Detail:") + 8);
+            }
+            throw new UserExistsException(msg);
+        }
+
     }
 
     @Override
-    public List<Message> getAllEmployees() {
-        return List.of();
+    public List<EmployeeResponseDTO> getAllEmployees(int page, int size) {
+      Pageable pageable = PageRequest.of(page, size);
+
+        return employeeRepository.findAll(pageable).stream()
+                .map(EmployeeResponseDTO::from)
+                .toList();
     }
+
+    @Override
+    public EmployeeResponseDTO getEmployeeByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(employeeRepository::findByUser)
+                .map(EmployeeResponseDTO::from)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
+    }
+
+    @Override
+    @PreAuthorize("hasRole('HR')")
+    public EmployeeResponseDTO updateEmployee(EmployeeCreateRequest employeeCreateRequest, String email) {
+
+        Employee employee = employeeRepository.findByUser(userRepository.findByEmail(email));
+
+        if (employee == null) {
+            throw new ResourceNotFoundException("Employee not found for email: " + email);
+        }
+
+        if (employeeRepository.existsByPhoneNumber(employeeCreateRequest.phoneNumber()))
+            throw new UserExistsException("Phone Number already exists try another number");
+
+        Designation designation = designationRepository.findByDesignationName(employeeCreateRequest.designationName());
+        if (designation == null) {
+            throw new ResourceNotFoundException(STR."Designation not found: \{employeeCreateRequest.designationName()}");
+        }
+
+        User user = userRepository.findByEmail(employeeCreateRequest.userEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found for email: " + employeeCreateRequest.userEmail()));
+
+        Employee employe = Employee.create(user, employeeCreateRequest, designation);
+
+        try {
+            return EmployeeResponseDTO.from(employeeRepository.save(employe));
+        } catch (DataIntegrityViolationException ex) {
+            String msg = ex.getMostSpecificCause().getMessage();
+            if (msg.contains("Detail:")) {
+                msg = msg.substring(msg.indexOf("Detail:") + 8);
+            }
+            throw new UserExistsException(msg);
+        }
+
+    }
+
+    @Override
+    public Message deleteEmployee(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found for email: " + email));
+
+        Employee employee = employeeRepository.findByUser(user);
+        if (employee == null) {
+            throw new ResourceNotFoundException("Employee profile not found for email: " + email);
+        }
+
+        employeeRepository.delete(employee);
+        return new Message("Employee deleted successfully");
+    }
+
 }

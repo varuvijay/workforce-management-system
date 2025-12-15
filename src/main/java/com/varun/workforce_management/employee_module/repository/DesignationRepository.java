@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface DesignationRepository extends JpaRepository<Designation, Long> {
 
 
-    Designation findByDesignationName(@NotBlank(message = "Designation name cannot be blank") String s);
+    Designation findByDesignationName(String s);
 }
