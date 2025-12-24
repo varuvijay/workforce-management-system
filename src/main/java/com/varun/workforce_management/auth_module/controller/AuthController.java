@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -19,22 +20,31 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public ResponseEntity<RegisterResponse> registerUser(@Valid @RequestBody RegistrationRequest registrationRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(registrationRequest));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(authService.registerUser(registrationRequest));
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> loginUser(@Valid @RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.ok(authService.loginUser(loginRequest));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(authService.loginUser(loginRequest));
     }
 
     @PostMapping("/refresh-token")
     public ResponseEntity<RefreshTokenResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
-        return ResponseEntity.ok(authService.refreshToken(request));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(authService.refreshToken(request));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<LogoutResponse> logoutUser(@RequestBody RefreshTokenRequest refreshToken) {
-        return ResponseEntity.ok(authService.logoutUser(refreshToken));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(authService.logoutUser(refreshToken));
     }
 }

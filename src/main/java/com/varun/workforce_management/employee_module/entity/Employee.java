@@ -11,6 +11,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Optional;
 
 
 @Data
@@ -93,6 +94,29 @@ public class Employee {
 
     public static Employee create(User user, EmployeeCreateRequest request, Designation designation) {
         Employee employee = new Employee();
+        employee.setUser(user);
+        employee.setFirstName(request.firstName());
+        employee.setLastName(request.lastName());
+        employee.setPhoneNumber(request.phoneNumber());
+        employee.setAddress(request.address());
+        employee.setPermanentAddress(request.permanentAddress());
+        employee.setDesignation(designation);
+        employee.setDateOfJoining(request.dateOfJoining());
+        employee.setDateOfBirth(request.dateOfBirth());
+        employee.setGender(request.gender());
+        employee.setPanNumber(request.panNumber());
+        employee.setAadharNumber(request.aadharNumber());
+        employee.setBankAccountNumber(request.bankAccountNumber());
+        employee.setBankName(request.bankName());
+        employee.setIfscCode(request.ifscCode());
+        employee.setBranch(request.branch());
+        employee.setSalary(request.salary());
+        return employee;
+    }
+
+       public static Employee update(User user, EmployeeCreateRequest request, Designation designation,  Long employeeId) {
+        Employee employee = new Employee();
+        employee.setEmployeeId(employeeId);
         employee.setUser(user);
         employee.setFirstName(request.firstName());
         employee.setLastName(request.lastName());

@@ -26,7 +26,8 @@ public record EmployeeResponseDTO(
                 String branch,
                 BigDecimal salary,
                 Instant createdAt,
-                Instant updatedAt) {
+                Instant updatedAt,
+                String managerEmail) {
 
         public static EmployeeResponseDTO from(Employee employee) {
                 return new EmployeeResponseDTO(
@@ -50,6 +51,7 @@ public record EmployeeResponseDTO(
                                 employee.getBranch(),
                                 employee.getSalary(),
                                 employee.getCreatedAt(),
-                                employee.getUpdatedAt());
+                                employee.getUpdatedAt(),
+                                employee.getManagerId() != null ? employee.getManagerId().getUser().getEmail() : null);
         }
 }

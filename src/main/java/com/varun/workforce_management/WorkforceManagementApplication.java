@@ -10,7 +10,7 @@ import java.util.TimeZone;
 public class WorkforceManagementApplication {
 
 
-	public static void main(String[] args) {
+	static void main(String[] args) {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
         SpringApplication.run(WorkforceManagementApplication.class, args);
 	}
