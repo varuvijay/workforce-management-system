@@ -1,5 +1,6 @@
 package com.varun.workforce_management.employee_module.dto;
 
+import com.varun.workforce_management.employee_module.entity.Employee;
 import com.varun.workforce_management.employee_module.entity.Gender;
 import jakarta.validation.constraints.*;
 
@@ -15,7 +16,6 @@ public record EmployeeCreateRequest(
         @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
         String firstName,
 
-        @NotBlank(message = "Last name cannot be blank")
         String lastName,
 
         @Pattern(regexp = "^\\d{10}$", message = "Phone number must be 10 digits")
@@ -58,5 +58,9 @@ public record EmployeeCreateRequest(
         String branch,
 
         @Positive(message = "Salary must be positive")
-        BigDecimal salary) {
+        BigDecimal salary,
+
+       @Email(message = "Manager email must be valid")
+        String managerEmail) {
 }
+        

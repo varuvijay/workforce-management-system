@@ -30,10 +30,10 @@ public class Timesheet {
     @Column(name = "checked_in", nullable = false)
     private Instant checkedIn;
 
-    @Column(name = "checked_out", nullable = false)
+    @Column(name = "checked_out")
     private Instant checkedOut;
 
-    @Column(name = "task_description", nullable = false, length = 2000)
+    @Column(name = "task_description", length = 2000)
     private String taskDescription;
 
     @Enumerated(EnumType.STRING)

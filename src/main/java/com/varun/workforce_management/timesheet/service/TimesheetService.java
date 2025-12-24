@@ -11,8 +11,6 @@ import java.time.LocalDate;
 
 public interface TimesheetService {
 
-     TimesheetResponse create(@Valid CreateTimesheetRequest request);
-
      MessageResponseDTO checkedIn();
 
      TimesheetResponse checkedOut(@Valid CreateTimesheetRequest request);

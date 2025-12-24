@@ -4,6 +4,9 @@ import com.varun.workforce_management.timesheet.entity.Timesheet;
 import com.varun.workforce_management.timesheet.dto.TimesheetResponse;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
@@ -30,6 +33,12 @@ public class TimesheetMapper {
                 timesheet.getApprovedAt(),
                 timesheet.getCreatedAt(),
                 timesheet.getUpdatedAt());
+    }
+
+    public List<TimesheetResponse> toResponseDTOs(List<Timesheet> timesheets) {
+        return timesheets.stream()
+                .map(this::toResponseDTO)
+                .collect(Collectors.toList());
     }
 
 }

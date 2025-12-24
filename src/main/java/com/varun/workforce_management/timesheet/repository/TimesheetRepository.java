@@ -6,10 +6,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TimesheetRepository extends JpaRepository<Timesheet, Long> {
 
-    Timesheet findByEmployeeAndWorkDate(Employee employee, LocalDate workDate);
+    List<Timesheet> findByEmployeeInAndWorkDate(List<Employee> employees, LocalDate workDate);
+
+    Optional<Timesheet> findByEmployeeAndWorkDate(Employee employee, LocalDate workDate);
 
 }
