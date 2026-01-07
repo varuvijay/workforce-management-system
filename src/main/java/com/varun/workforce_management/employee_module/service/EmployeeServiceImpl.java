@@ -75,19 +75,14 @@ public class EmployeeServiceImpl implements EmployeeService {
     public EmployeeResponseDTO updateEmployee(EmployeeCreateRequest request, String email) {
         log.info("Updating employee with email: {}", email);
 
-        // Fetch existing employee to ensure existence (Logic preserved)
         Employee existingEmployee = getEmployeeEntityByEmail(email);
 
         User user = getUserByEmail(request.userEmail());
         Designation designation = getDesignationByName(request.designationName());
         Employee manager = getManagerByEmail(request.managerEmail());
 
-        // Note: This logic creates a new Employee instance based on the request.
-        // Logic preserved from original code as requested.
         Employee updatedEmployee = Employee.update(user, request, designation, existingEmployee.getEmployeeId());
 
-        // Critical: If the intention is to update, we might be creating a duplicate
-        // or losing the ID. Preserving original logic flow here.
         if (manager != null) {
             updatedEmployee.setManagerId(manager);
         }
@@ -104,6 +99,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         return new Message("Employee deleted successfully");
     }
 
+
+
+    
     // --- Private Helper Methods ---
 
     private User getUserByEmail(String email) {
